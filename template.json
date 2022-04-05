@@ -1,0 +1,63 @@
+{
+  "builders": [
+    {
+      "boot_command": "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/ignition.ign \u0026\u0026 sudo coreos-installer install {{user `install_target`}} --ignition-file ignition.ign \u0026\u0026 reboot<enter>",
+      "boot_wait": "{{user `boot_wait`}}",
+      "cpus": "{{ user `cpus` }}",
+      "disk_size": "{{user `disk_size`}}",
+      "net_device": "virtio-net",
+      "disk_interface": "virtio",
+      "headless": "{{ user `headless` }}",
+      "http_directory": ".",
+      "iso_checksum": "sha256:{{ user `iso_checksum` }}",
+      "iso_url": "{{ user `iso_url` }}",
+      "memory": "{{ user `memory` }}",
+      "type": "qemu",
+      "vm_name": "{{user `vm_name`}}",
+      "accelerator": "kvm",
+      "format": "qcow2",
+      "ssh_username": "{{ user `username` }}",
+      "ssh_password": "core",
+      "communicator": "ssh",
+      "host_port_min": "2222",
+      "host_port_max": "2229",     
+      "shutdown_command": "sudo shutdown now",
+      "ssh_timeout": "10m",
+      "ssh_handshake_attempts": "20",
+      "ssh_private_key_file": "~/.vagrant.d/insecure_private_key",
+      "ssh_wait_timeout": "10m"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "compression_level": 9,
+        "output": "box/{{user `vm_name`}}-{{user `version`}}.box",
+        "type": "vagrant",
+        "vagrantfile_template": "vagrantfile.tpl",
+        "keep_input_artifact": false
+      },
+      {
+        "access_token": "{{user `access_token`}}",
+        "box_tag": "{{user `box_tag`}}",
+        "type": "vagrant-cloud",
+        "version": "{{user `version`}}"
+      }
+    ]
+  ],
+  "variables": {
+    "username": "core",
+    "install_target": "/dev/vda",
+    "access_token": "{{env `VAGRANT_CLOUD_TOKEN`}}",
+    "boot_wait": "30s",
+    "box_tag": "sudo_killself/rhcos-libvirt",
+    "cpus": "2",
+    "disk_size": "5120",
+    "headless": "false",
+    "iso_checksum": "0e92c3ad698ef68057011f7cc5b9fd07356b8711a55f735aaae22c91b996c96e",
+    "iso_url": "https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.9/latest/rhcos-live.x86_64.iso",
+    "memory": "4096",
+    "version": "4.9.0",
+    "vm_name": "rhcos-libvirt"
+  }
+}
